@@ -15,7 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,9 +36,15 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       TRAVELPAYOUTS_TOKEN: ${TRAVELPAYOUTS_TOKEN}
+      SERPAPI_KEY: ${SERPAPI_KEY}
       OLLAMA_HOST: ${OLLAMA_HOST}
       PORT: ${PORT}
       API_URL: ${API_URL}
+      # Corporate MITM proxy workaround. Set to 0 in .env ONLY on a machine
+      # behind a TLS-intercepting proxy, and only in development — it disables
+      # certificate verification for every outbound HTTPS call.
+      # Leave unset/1 at home and in production.
+      NODE_TLS_REJECT_UNAUTHORIZED: ${NODE_TLS_REJECT_UNAUTHORIZED:-1}
     ports:
       - "3000:3000"
     depends_on:

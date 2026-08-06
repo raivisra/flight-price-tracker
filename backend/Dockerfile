@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (disable SSL verification for corporate proxy)
+RUN npm config set strict-ssl false && npm install
 
 # Copy source code
 COPY . .

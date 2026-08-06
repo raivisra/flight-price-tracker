@@ -78,10 +78,14 @@ app.get('/api/me', verifyToken, (req, res) => {
   });
 });
 
-// TODO: Add protected routes
-// app.use('/api/searches', verifyToken, require('./routes/searches'));
-// app.use('/api/prices', verifyToken, require('./routes/prices'));
-// app.use('/api/insights', verifyToken, require('./routes/insights'));
+// Flight search. Left public for now so it can be tested without a token;
+// move behind verifyToken before this is exposed beyond localhost.
+app.use('/api/flights', require('./routes/flights'));
+
+// Tracked searches, alerts and per-search history — all owner-scoped.
+app.use('/api/searches', verifyToken, require('./routes/searches'));
+
+// TODO: app.use('/api/insights', verifyToken, require('./routes/insights'));
 
 // ============================================
 // ERROR HANDLING
@@ -110,6 +114,7 @@ app.use((err, req, res, next) => {
 // ============================================
 
 app.listen(PORT, () => {
+  require('./services/scheduler.service').start();
   console.log(`
 ╔════════════════════════════════════════════╗
 ║  Flight Price Tracker API                  ║
@@ -123,7 +128,9 @@ app.listen(PORT, () => {
 ║    /health                 (public)        ║
 ║    /api/auth/register      (public)        ║
 ║    /api/auth/login         (public)        ║
-║    /api/me                 (protected)     ║
+║    /api/flights/search     (public)        ║
+║    /api/searches           (protected)     ║
+║    /api/searches/alerts/all(protected)     ║
 ╚════════════════════════════════════════════╝
   `);
 });

@@ -314,6 +314,25 @@ taskkill /PID <PID> /F
 - Check: `docker logs travelai-llm`
 - Restart: `docker-compose restart ollama`
 
+### Code changes not taking effect
+
+On Windows, bind-mounted files do not deliver inotify events into a Linux
+container, so file watchers silently never fire. The `dev` script therefore runs
+`nodemon -L` (polling). If you still see stale behaviour, confirm the container
+picked up the new script:
+
+```bash
+docker-compose restart backend
+docker-compose logs backend | Select-String "restarting due to changes"
+```
+
+A schema change (anything in `db/init.sql`) needs more than a restart — the
+init script only runs against an empty volume:
+
+```bash
+docker-compose down -v && docker-compose up -d --build
+```
+
 ### Database Connection Error
 
 ```bash
